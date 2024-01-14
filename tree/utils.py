@@ -11,7 +11,10 @@ def check_ifreal(y: pd.Series) -> bool:
     Function to check if the given series has real or discrete values
     """
 
-    pass
+    if y.dtype == int or y.dtype == float:
+        return True
+    else:
+        return False
 
 
 def entropy(Y: pd.Series) -> float:
@@ -19,6 +22,7 @@ def entropy(Y: pd.Series) -> float:
     Function to calculate the entropy
     """
 
+    
     pass
 
 
