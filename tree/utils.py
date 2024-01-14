@@ -4,6 +4,7 @@ There is no restriction on following the below template, these fucntions are her
 """
 
 import pandas as pd
+import math
 
 
 def check_ifreal(y: pd.Series) -> bool:
@@ -22,8 +23,16 @@ def entropy(Y: pd.Series) -> float:
     Function to calculate the entropy
     """
 
+    value_counts = Y.value_counts()
+
+    total_instances = len(Y)
+    entropy = 0
+    for count in value_counts:
+        probability = count / total_instances
+        entropy -= probability * math.log2(probability)
+
+    return entropy
     
-    pass
 
 
 def gini_index(Y: pd.Series) -> float:
@@ -31,7 +40,15 @@ def gini_index(Y: pd.Series) -> float:
     Function to calculate the gini index
     """
 
-    pass
+    value_counts = Y.value_counts()
+
+    total_instances = len(Y)
+    gini_index = 1
+    for count in value_counts:
+        probability = count / total_instances
+        gini_index -= probability**2
+    
+    return gini_index
 
 
 def information_gain(Y: pd.Series, attr: pd.Series) -> float:
@@ -39,7 +56,24 @@ def information_gain(Y: pd.Series, attr: pd.Series) -> float:
     Function to calculate the information gain
     """
 
-    pass
+    entropy_original = entropy(Y)
+
+    weighted_entropy = 0
+    unique_values = attr.unique()
+    total_instances = len(Y)
+
+    for value in unique_values:
+        subset_Y = Y[attr == value]
+        subset_size = len(subset_Y)
+        weight = subset_size / total_instances
+        subset_entropy = entropy(subset_Y)
+        weighted_entropy += weight * subset_entropy
+
+    information_gain = entropy_original - weighted_entropy
+
+    return information_gain
+
+    
 
 
 def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.Series):
