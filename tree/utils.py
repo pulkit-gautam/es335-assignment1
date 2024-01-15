@@ -5,8 +5,6 @@ There is no restriction on following the below template, these fucntions are her
 
 import pandas as pd
 import numpy as np
-from scipy.special import xlogy
-from sklearn.model_selection import train_test_split
 
 def check_ifreal(y: pd.Series) -> bool:
     """
@@ -17,7 +15,6 @@ def check_ifreal(y: pd.Series) -> bool:
     
     else:
         return False
-    pass
 
 
 def entropy(Y: pd.Series) -> float:
@@ -26,7 +23,6 @@ def entropy(Y: pd.Series) -> float:
     """
     prob = Y.value_counts(normalize=True)
     return -np.sum(prob * np.log2(prob))
-    pass
 
 
 def gini_index(Y: pd.Series) -> float:
@@ -38,7 +34,6 @@ def gini_index(Y: pd.Series) -> float:
 
     gini_index = 1 - sum((p**2) for p in prob)
     return gini_index
-    pass
 
 
 def information_gain(Y: pd.Series, attr: pd.Series) -> float:
@@ -58,7 +53,6 @@ def information_gain(Y: pd.Series, attr: pd.Series) -> float:
     info_gain = original_entropy - weighted_sum_entropy
 
     return info_gain
-    pass
 
 def mse_calculate(Y: pd.Series) -> float:
     mean_y = Y.mean()
@@ -159,12 +153,3 @@ def split_data(X: pd.DataFrame, y: pd.Series, attribute, value):
 
     # Split the data based on a particular value of a particular attribute. You may use masking as a tool to split the data.
 
-    if check_ifreal(X[attribute]):
-        mask = X[attribute] <= value
-    else:
-        mask = X[attribute] == value
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=mask)
-
-    return X_train, X_test, y_train, y_test
-    pass
