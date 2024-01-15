@@ -4,6 +4,7 @@ There is no restriction on following the below template, these fucntions are her
 """
 
 import pandas as pd
+import numpy as np
 
 
 def check_ifreal(y: pd.Series) -> bool:
@@ -135,7 +136,6 @@ def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.S
                 opt_attribute = attribute
 
     return opt_attribute
-    pass
     
 
 
