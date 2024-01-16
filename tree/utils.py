@@ -68,17 +68,6 @@ def information_gain(Y: pd.Series, attr: pd.Series) -> float:
     unique_values = attr.unique()
     
     if(check_ifreal(Y)):
-        entropy_before_split = entropy(Y)
-        information_gain_value = entropy_before_split
-
-        for value in unique_values:
-            subset_Y = Y[attr == value]
-            subset_size = len(subset_Y)
-            subset_entropy = entropy(subset_Y)
-            information_gain_value -= (subset_size / total_samples) * subset_entropy
-
-        return information_gain_value
-    else:
         variance_before_split = variance(Y)
         information_gain_value = variance_before_split
 
@@ -89,7 +78,17 @@ def information_gain(Y: pd.Series, attr: pd.Series) -> float:
             information_gain_value -= (subset_size / total_samples) * subset_variance
 
         return information_gain_value
-    
+    else:
+        entropy_before_split = entropy(Y)
+        information_gain_value = entropy_before_split
+
+        for value in unique_values:
+            subset_Y = Y[attr == value]
+            subset_size = len(subset_Y)
+            subset_entropy = entropy(subset_Y)
+            information_gain_value -= (subset_size / total_samples) * subset_entropy
+
+        return information_gain_value
 
 
 def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.Series):
@@ -135,6 +134,7 @@ def split_data(X: pd.DataFrame, y: pd.Series, attribute, value):
     """
 
     # Split the data based on a particular value of a particular attribute. You may use masking as a tool to split the data.
+    
     mask = X[attribute] == value
     X_split = X[mask]
     y_split = y[mask]
