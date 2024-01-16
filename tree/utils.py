@@ -15,6 +15,7 @@ def check_ifreal(y: pd.Series) -> bool:
         return True
     else:
         return False
+    
 
 
 def entropy(Y: pd.Series) -> float:
@@ -62,6 +63,7 @@ def variance(Y: pd.Series) -> float:
 def information_gain(Y: pd.Series, attr: pd.Series) -> float:
     """
     Function to calculate the information gain
+    
     """
 
     total_samples = len(Y)
@@ -76,7 +78,7 @@ def information_gain(Y: pd.Series, attr: pd.Series) -> float:
             subset_size = len(subset_Y)
             subset_variance = variance(subset_Y)
             information_gain_value -= (subset_size / total_samples) * subset_variance
-
+        
         return information_gain_value
     else:
         entropy_before_split = entropy(Y)
@@ -121,22 +123,16 @@ def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.S
     return best_attribute
 
 
-def split_data(X: pd.DataFrame, y: pd.Series, attribute, value):
-    """
-    Function to split the data according to an attribute.
-    If needed you can split this function into 2, one for discrete and one for real valued features.
-    You can also change the parameters of this function according to your implementation.
-
-    attribute: attribute/feature to split upon
-    value: value of that attribute to split upon
-
-    return: splitted data (Input and output)
-    """
-
-    # Split the data based on a particular value of a particular attribute. You may use masking as a tool to split the data.
+def split_data(X: pd.DataFrame, y: pd.Series, attribute):
+    # Split the data based on unique values of a particular attribute.
     
-    mask = X[attribute] == value
-    X_split = X[mask]
-    y_split = y[mask]
+    unique_values = X[attribute].unique()
+    splits = []
 
-    return X_split, y_split
+    for value in unique_values:
+        mask = X[attribute] == value
+        X_split = X[mask]
+        splits.append(X_split)
+       
+
+    return splits
