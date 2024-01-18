@@ -150,15 +150,29 @@ def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.S
 
     #Discrete Valued Input
     else:
-        for attribute in features:
-            #Finding the best split in a particular attribute
-            split_point = find_best_split_cat(X, y, attribute)
-            #Calculating the gini of that split
-            gini = gini_index(y[X[attribute] <= split_point]) + gini_index(y[X[attribute] > split_point])
-            #Updating the best score and the optimal attribute
-            if gini < best_score:
-                best_score = gini
-                opt_attribute = attribute
+        if criterion == 'gini_index':
+            for attribute in features:
+                #Finding the best split in a particular attribute
+                split_point = find_best_split_cat(X, y, attribute)
+                #Calculating the gini of that split
+                gini = gini_index(y[X[attribute] <= split_point]) + gini_index(y[X[attribute] > split_point])
+                #Updating the best score and the optimal attribute
+                if gini < best_score:
+                    best_score = gini
+                    opt_attribute = attribute
+        
+        else:
+            #Initializing information gain and best attribute
+            info_gain = 0.0
+            best_attribute = None
+            #Picking out the best feature based on maximum information gain
+            for attribute in features:
+                curr_info_gain = information_gain(y,X[attribute])
+                if curr_info_gain > info_gain:
+                    info_gain = curr_info_gain
+                    best_attribute = attribute
+            return best_attribute
+                
 
     return opt_attribute
 
@@ -177,11 +191,11 @@ def split_data(X: pd.DataFrame, y: pd.Series, attribute, value):
 
     # Split the data based on a particular value of a particular attribute. You may use masking as a tool to split the data.
 
-    #Categorical attribute
+    #Numerical Attribute
     if check_ifreal(X[attribute]):  
         mask = X[attribute] <= value
         
-    #Numerical attribute
+    #Categorical Attribute
     else:  
         mask = X[attribute] == value
 
