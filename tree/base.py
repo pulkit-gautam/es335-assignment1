@@ -68,6 +68,131 @@ class DecisionTree:
           if(att.dtype == "category"): 
             #Checking for criterion
             if(self.criterion=="information_gain"):
+              info_gain = information_gain(y,att,"entropy")
+            else:
+              info_gain = information_gain(y,att,"gini_index")
+              
+            if(info_gain > max_entropy_cat):
+                max_entropy_cat = info_gain
+                best_attribute = index
+
+          #Real input and discrete output
+          else: 
+            
+              #Calculating info gain based on criterion
+              if(self.criterion=="information_gain"):
+                info_gain,split = information_gain(y,att,"entropy")
+              else:
+                info_gain,split = information_gain(y,att,"gini index")
+              #if info gain succesfully calculated
+              if(info_gain != None):
+                #Update the info gain and best attribute to split on
+                if(info_gain > max_entropy_cat):
+                  max_entropy_cat = info_gain
+                  best_attribute = index
+                  splitval = split
+              #If info gain not calculated, update its value to some high number
+              else:
+                  info_gain= max_entropy_cat + 10000
+                  best_attribute = index
+                  splitval=split
+
+      #means real output i.e. regression
+      else: 
+        #Checking for max depth and size of data
+        if(self.max_depth==depth or y1.size==1 or x.shape[1]==0):
+          node.isleaf=True
+          node.value=y1.mean()
+          return node
+        
+        for index in x:
+          att=x[index]
+          # checking for discrete attributes
+          #Discrete input and Real Output
+          if(att.dtype=="category"): 
+              info_gain = information_gain(y,att,"entropy")
+              if(max_mse_real > info_gain):
+                            max_mse_real = info_gain
+                            best_attribute = index
+                            splitval = None
+
+          #Real input and Real Output
+          else: 
+            mse,split = information_gain(y,att,"entropy")
+            if(mse < max_mse_real):
+                max_mse_real = mse
+                best_attribute = index
+                splitval = split
+
+      #If no split value         
+      if(splitval==None):
+        node.discrete = True
+        node.attribute=best_attribute
+        
+        classes = np.unique(x[best_attribute])
+
+        #making new x and y which are a subset of original if they have values same as that of best attribute
+        for j in classes:
+          y_modify = pd.Series([y1[k] for k in range(y1.size) if x[best_attribute][k]==j], dtype=y1.dtype)
+          x_modify = x[x[best_attribute]==j].reset_index().drop(['index',best_attribute],axis=1) 
+          #recursively calling the function for the child node with the updated x and y
+          node.child[j] = self.fit_tree(x_modify, y_modify, depth+1)
+      
+      else:
+        node.attribute = best_attribute
+        node.split_val = splitval
+        val_left = []
+        val_right = []
+        #Splitting into left and right subsets based on split value
+        x_left = x[x[best_attribute]<=splitval].reset_index().drop(['index'],axis=1)
+        x_right = x[x[best_attribute]>splitval].reset_index().drop(['index'],axis=1)
+        for j in range(len(x[best_attribute])):
+          if x[best_attribute][j]<=splitval:
+            val_left.append(y1[j])
+          else:
+            val_right.append(y1[j])
+
+        val_left=pd.Series(val_left)
+        val_right=pd.Series(val_right)
+        
+        #Recursively calling the function on the left and right child subset 
+        node.child["left"]=self.fit_tree(x_left, val_left, depth+1)
+        node.child["right"]=self.fit_tree(x_right, val_right, depth+1)
+
+      return node
+    '''
+    def fit_tree(self,x,y,depth):
+      #Defining the values and parameters
+      node = Node()
+      max_entropy_cat = -1*float("inf")
+      max_mse_real = float("inf")
+      best_attribute = -1
+      splitval = None
+      y1 = y.to_numpy()
+
+      # if y is discrete
+      if not check_ifreal(y):
+        unique_classes = y.unique()
+        # only one value for prediction
+        if unique_classes.size == 1: 
+          node.isleaf = True 
+          node.discrete = True 
+          node.value = np.random.choice(unique_classes)
+          return node
+        #if max depth is reached
+        if self.max_depth == depth or x.shape[1] == 0: 
+          node.isleaf = True
+          node.discrete = True
+          node.value = np.bincount(y1).argmax()
+          return node
+        
+        for index in x:
+          att = x[index]
+          # checking for discrete attributes
+          #Discrete input and discrete output
+          if(att.dtype == "category"): 
+            #Checking for criterion
+            if(self.criterion=="information_gain"):
               info_gain = information_gain(y,att,"information_gain")
             else:
               info_gain = 0
@@ -200,6 +325,7 @@ class DecisionTree:
         node.child["right"]=self.fit_tree(x_right, val_right, depth+1)
 
       return node
+    '''
 
     def fit(self, X: pd.DataFrame, y: pd.Series) -> None:
         """
